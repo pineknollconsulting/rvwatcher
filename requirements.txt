@@ -2,4 +2,18 @@
 # The Python Worker is managed by Azure Functions platform
 # Manually managing azure-functions-worker may cause unexpected issues
 
-azure-functions
+attrs==21.2.0
+azure-functions==1.7.2
+certifi==2021.5.30
+charset-normalizer==2.0.4
+idna==3.2
+iniconfig==1.1.1
+packaging==21.0
+pluggy==1.0.0
+py==1.10.0
+pyparsing==2.4.7
+pytest==6.2.5
+requests==2.26.0
+toml==0.10.2
+urllib3==1.26.6
+vrmapi==0.1.3
