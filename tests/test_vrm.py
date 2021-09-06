@@ -23,8 +23,8 @@ class TestVrm(object):
         assert sites
         assert len(sites) == 3
         for site in sites:
-            print(site.name, site.name in [
-                "ResTS05 (PD)", "VIC JONES", "Victron GlobalLink 520 - AU Demo - BMV-712 & 150/70 MPPT"])
+            assert site.name in [
+                "ResTS05 (PD)", "VIC JONES", "Victron GlobalLink 520 - AU Demo - BMV-712 & 150/70 MPPT"]
 
 
 @pytest.fixture
