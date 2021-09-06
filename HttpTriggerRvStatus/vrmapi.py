@@ -1,57 +1,46 @@
 # Main imports
 import requests
 import logging
-from datetime import datetime
-from math import ceil
 
+from .util import datetime_to_epoch
 # setup Logger
 logger = logging.getLogger(__name__)
 ch = logging.StreamHandler()
 logger.addHandler(ch)
 
 
-def datetime_to_epoch(time):
-    """
-    Converts a given datetime object to an epoch timestamp
-    @param - time
-
-    Returns int
-    """
-    diff = time - datetime.utcfromtimestamp(0)
-    return int(ceil(diff.total_seconds()))
-
-
 class VRM_API:
     # Get this
     RETRY = 3
+
+    API_ENDPOINT = 'https://vrmapi.victronenergy.com'
+    DEMO_AUTH_ENDPOINT = API_ENDPOINT + '/v2/auth/loginAsDemo'
+    AUTH_ENDPOINT = API_ENDPOINT + '/v2/auth/login'
+    QUERY_ENDPOINT = API_ENDPOINT + \
+        '/v2/installations/{inst_id}/stats'
+    AGGR_STATS_ENDPOINT = API_ENDPOINT + \
+        '/v2/installations/{inst_id}/overallstats'
+    USER_ENDPOINT = API_ENDPOINT + '/v2/admin/users'
+    USER_SITE_ENDPOINT = API_ENDPOINT + \
+        '/v2/users/{user_id}/installations'
+    WIDGETS_ENDPOINT = API_ENDPOINT + \
+        '/v2/installations/{inst_id}/widgets/{widget_type}'
+    DIAG_ENDPOINT = API_ENDPOINT + \
+        '/v2/installations/{inst_id}/diagnostics'
 
     def __init__(self, username=None, password=None, demo=False):
         """
         Initialise API for Victron VRM
         @param - username
         @param - password
+        @param - demo
         """
 
         self._initialized = False
-        self.API_ENDPOINT = 'https://vrmapi.victronenergy.com'
 
         self._auth_token = ''
         self._ses = requests.Session()
         self.user_id = ''
-
-        self.DEMO_AUTH_ENDPOINT = self.API_ENDPOINT + '/v2/auth/loginAsDemo'
-        self.AUTH_ENDPOINT = self.API_ENDPOINT + '/v2/auth/login'
-        self.QUERY_ENDPOINT = self.API_ENDPOINT + \
-            '/v2/installations/{inst_id}/stats'
-        self.AGGR_STATS_ENDPOINT = self.API_ENDPOINT + \
-            '/v2/installations/{inst_id}/overallstats'
-        self.USER_ENDPOINT = self.API_ENDPOINT + '/v2/admin/users'
-        self.USER_SITE_ENDPOINT = self.API_ENDPOINT + \
-            '/v2/users/{user_id}/installations'
-        self.WIDGETS_ENDPOINT = self.API_ENDPOINT + \
-            '/v2/installations/{inst_id}/widgets/{widget_type}'
-        self.DIAG_ENDPOINT = self.API_ENDPOINT + \
-            '/v2/installations/{inst_id}/diagnostics'
 
         if demo:  # Login as demo else with credentials
             self._initialized = self._login_as_demo()
@@ -434,6 +423,7 @@ class VRM_API:
         if result.status_code == 200:
             response_json = result.json()
             self._auth_token = response_json['token']
+            self.user_id = '22'
             logger.debug(
                 'API initialized with demo account , token: %s' % self._auth_token)
             return True
