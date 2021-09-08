@@ -1,4 +1,4 @@
-from typing import Union, Sequence
+from typing import Union, Sequence, Callable
 from . import vrmapi
 from . import vrm_site
 
@@ -28,3 +28,16 @@ class VrmSession(object):
         vrm_sites = vrm_site.VrmSites(**sites)
         self._sites = vrm_sites.sites
         return self._sites
+
+    def extended_sites(self) -> Sequence[str]:
+        sites = self._api.get_user_sites(
+            self._api.user_id, extended=True)
+        result = []
+        for record in sites["records"]:
+            for extended in record["extended"]:
+                if "code" in extended:
+                    code = extended["code"]
+                    if code == "bs":
+                        result.append(
+                            f"{record['name']} SOC {extended['formattedValue']}")
+        return result
