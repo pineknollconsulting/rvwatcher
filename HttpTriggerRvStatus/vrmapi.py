@@ -3,6 +3,8 @@ import requests
 import logging
 
 from .util import datetime_to_epoch
+from .exceptions import VrmLoginFailure, VrmRequestFailure
+
 # setup Logger
 logger = logging.getLogger(__name__)
 ch = logging.StreamHandler()
@@ -49,7 +51,7 @@ class VRM_API:
                 self.username = username
                 self.password = password
             else:
-                raise Exception('No username or password provided')
+                raise VrmLoginFailure('No username or password provided')
 
             logger.debug('Initializing API with username %s ' % self.username)
             self._initialized = self._login()
@@ -406,12 +408,11 @@ class VRM_API:
             logger.debug('API initialized with token %s' % self._auth_token)
             return True
         elif result.status_code == 401:
-            logger.error("Unable to authenticate")
-            return False
+            raise VrmLoginFailure("Unauthorized")
         else:
             logger.error("Problem authenticating status code:%s  text:%s" % (
                 result.status_code, result.text))
-            return False
+            raise VrmLoginFailure(result.text, result.status_code)
 
     def _login_as_demo(self):
         """
@@ -429,7 +430,7 @@ class VRM_API:
             return True
         else:
             logger.error('Unable to login as demo')
-            return False
+            VrmLoginFailure("Unable to login as demo")
 
     def _prepare_query_request(self, site_id, start_epoch, end_epoch, query_interval, query_type='kwh'):
         """
@@ -473,7 +474,8 @@ class VRM_API:
             else:
                 logger.error(
                     "Something went wrong with request msg:%s" % response.text)
-                return {}
+                raise VrmRequestFailure(response.text, response.status_code)
 
-        except Exception:
+        except Exception as ex:
             logger.exception("Error with getting request")
+            raise ex
